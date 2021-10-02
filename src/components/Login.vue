@@ -6,6 +6,7 @@
         label="API Url"
         label-for="url-input"
         invalid-feedback="API Url required"
+        style="display: none"
       >
         <b-form-input
           id="url-input"
