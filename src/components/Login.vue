@@ -81,8 +81,8 @@ export default class Login extends Vue {
 
   auth: AuthPayload = {
     url: defaultURL,
-    username: '',
-    password: '',
+    username: 'upbit@bitsbee.net',
+    password: 'upbit',
   };
 
   @Emit('loginResult')

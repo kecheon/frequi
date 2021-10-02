@@ -5,7 +5,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'https://cheon.coins88.org',
+        target: 'https://upbit.bitsbee.io',
         changeOrigin: true,
       },
     },
