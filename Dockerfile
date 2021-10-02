@@ -21,5 +21,8 @@ RUN yarn build
 FROM nginx:1.21.3-alpine
 COPY  --from=ui-builder /app/dist /etc/nginx/html
 COPY  --from=ui-builder /app/nginx.conf /etc/nginx/nginx.conf
+ARG BOT_ID
+RUN echo $BOT_ID
+RUN sed -i "s/ubuntu/$BOT_ID/g" /etc/nginx/nginx.conf
 EXPOSE 80
 CMD ["nginx"]
