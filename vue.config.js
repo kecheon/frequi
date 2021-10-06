@@ -1,7 +1,19 @@
+const webpack = require('webpack')
+
 module.exports = {
   configureWebpack: {
     devtool: 'source-map',
+    plugins: [
+      new webpack.optimize.LimitChunkCountPlugin({
+        maxChunks: 1
+      })
+    ]
   },
+  chainWebpack:
+    config => {
+      config.optimization.delete('splitChunks')
+    },
+  filenameHashing: false,
   devServer: {
     proxy: {
       '/api': {

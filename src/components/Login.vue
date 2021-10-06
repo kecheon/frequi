@@ -67,7 +67,8 @@ import { setBaseUrl } from '@/shared/apiService';
 
 import { AuthPayload } from '@/types';
 
-const defaultURL = window.location.origin || 'http://localhost:8080';
+// const defaultURL = window.location.origin || 'http://localhost:8080';
+const defaultURL = process.env.VUE_APP_API_URL || 'http://localhost:8080';
 
 @Component({})
 export default class Login extends Vue {
