@@ -8,13 +8,16 @@
       button
       class="d-flex justify-content-between align-items-center py-1"
       :active="comb.pair === selectedPair"
+      :title="`${comb.pair} - ${comb.tradeCount} trades`"
       @click="setSelectedPair(comb.pair)"
     >
       <div>
         {{ comb.pair }}
         <span v-if="comb.locks" :title="comb.lockReason"> &#128274; </span>
       </div>
-      <TradeProfit v-if="comb.trade" :trade="comb.trade" />
+
+      <TradeProfit v-if="comb.trade && !backtestMode" :trade="comb.trade" />
+      <ProfitPill v-if="backtestMode && comb.tradeCount > 0" :profit-ratio="comb.profit" />
     </b-list-group-item>
   </b-list-group>
 </template>
@@ -26,6 +29,7 @@ import { Lock, Trade } from '@/types';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import TradeProfit from '@/components/ftbot/TradeProfit.vue';
+import ProfitPill from '@/components/general/ProfitPill.vue';
 
 const ftbot = namespace('ftbot');
 
@@ -36,9 +40,11 @@ interface CombinedPairList {
   trade?: Trade;
   locks?: Lock;
   profit: number;
+  profitAbs: number;
+  tradeCount: number;
 }
 
-@Component({ components: { TradeProfit } })
+@Component({ components: { TradeProfit, ProfitPill } })
 export default class PairSummary extends Vue {
   @Prop({ required: true }) pairlist!: string[];
 
@@ -48,6 +54,8 @@ export default class PairSummary extends Vue {
 
   /** Sort method, "normal" (sorts by open trades > pairlist -> locks) or "profit" */
   @Prop({ required: false, default: 'normal' }) sortMethod!: string;
+
+  @Prop({ required: false, default: false }) backtestMode!: boolean;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @ftbot.Action setSelectedPair!: (pair: string) => void;
@@ -75,18 +83,21 @@ export default class PairSummary extends Vue {
       }
       let profitString = '';
       let profit = 0;
+      let profitAbs = 0;
       trades.forEach((trade) => {
         profit += trade.profit_ratio;
+        profitAbs += trade.profit_abs;
       });
-
-      const trade = trades.length === 1 ? trades[0] : undefined;
+      const tradeCount = trades.length;
+      const trade = tradeCount ? trades[0] : undefined;
       if (trades.length > 0) {
         profitString = `Current profit: ${formatPercent(profit)}`;
+        console.log(`trades ${pair}`, trades);
       }
       if (trade) {
         profitString += `\nOpen since: ${timestampms(trade.open_timestamp)}`;
       }
-      comb.push({ pair, trade, locks, lockReason, profitString, profit });
+      comb.push({ pair, trade, locks, lockReason, profitString, profit, profitAbs, tradeCount });
     });
     if (this.sortMethod === 'profit') {
       comb.sort((a, b) => {
